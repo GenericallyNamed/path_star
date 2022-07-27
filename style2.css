@@ -1,0 +1,298 @@
+@font-face {
+    font-family: 'Libre Franklin';
+    font-style: normal;
+    src: url('/fonts/LibreFranklin-VariableFont_wght.ttf');
+}
+
+
+/* special UI components */
+
+/* defining overlay components */
+#overlay {
+    position:absolute;
+    top:0;
+    left:0;
+    background:rgba(41, 41, 41, 0.534);
+    z-index:899;
+    transition:0.5s ease;
+}
+
+#overlay.invisible {
+    background: rgba(41, 41, 41, 0);
+    pointer-events:none;
+}
+
+/* components for splash overlay */
+.pop-up {
+    transition:0.5s ease;
+    border-radius:15px;
+    background: url("../images/splash.png");
+    background-size: cover;
+    background-position:center;
+    z-index:1000;
+    width:800px;
+    height:500px;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translateY(-50%) translateX(-50%) scale(100%);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    box-shadow:0px 0px 60px 15px rgb(17, 17, 17);
+    -webkit-user-select:none;
+    user-select:none;
+}
+.pop-up.shrink {
+    transform:translateY(-50%) translateX(-50%) scale(150%);
+    filter:blur(100px);
+    opacity:0;
+    pointer-events:none;
+
+}
+
+#splash > .bg-fx {
+    position:absolute;
+    width: 100%; 
+    height: 100%; 
+    filter:blur(100px) brightness(1);
+    /* clip-path: polygon(0% 0%, 50% 100%, 100% 0%); */
+    mix-blend-mode:overlay;
+    /* filter:brightness(2); */
+    /* opacity:0.5; */
+    z-index:900;
+    
+}
+#splash.pop-up > .bg-fx > div {
+    background:linear-gradient(45deg, rgb(10,200,255), rgb(255, 123, 15));
+    width:100%;
+    height:100%;
+    clip-path: polygon(0% 0%, 50% 100%, 100% 0%);
+}
+
+.topbar {
+    height:50px;
+    width:100%;
+    height:50px;
+    display:flex;
+    flex-direction:row;
+    vertical-align:middle;
+    z-index:901;
+}
+
+.topbar > .title {
+    place-self:center;
+    font-size:0.8rem;
+    color:rgb(78, 78, 78);
+    padding:20px;
+    transition:0.4s ease;
+}
+.topbar > .title:hover {
+    color:rgb(202, 202, 202);
+}
+
+.topbar > .close_btn {
+    margin-left:auto;
+    color: rgb(78,78,78);
+    font-size:1.5rem;
+    padding-right:20px;
+    padding-left:20px;
+}
+
+.close_btn:hover {
+    box-shadow:none!important;
+    color:white!important;
+}
+
+
+#splash_title {
+    font-size:4.5rem;
+    font-variation-settings: "wght" 800;
+    place-self:center;
+    margin-top:auto;
+    margin-bottom:3rem;
+    z-index:902;
+}
+
+#splash_button {
+    border-radius:5px;
+    background: rgb(116, 65, 255);
+    color:white;
+    font-variation-settings: 'wght' 400;
+    font-size:1.5rem;
+    margin: auto auto 8rem auto;
+    width:min-content;
+    padding:1rem 2rem;
+    z-index:903;
+}
+
+#debug_output {
+    position:relative;
+    height:100%;
+    width:400px;
+    background:transparent;
+    display:flex;
+    flex-direction:column;
+    margin-left:5px;
+    overflow:hidden;
+    border:1px solid grey;
+    box-sizing:border-box;
+    border-radius:5px;
+    place-content:end;
+}
+#debug_output > .title {
+    position: absolute;
+    top:5px;
+    left:50%;
+    transform:translateX(-50%);
+    font-family: monospace;
+    font-size:0.8rem;
+    font-variation-settings: 'wght' 300;
+}
+@keyframes backfade {
+    from {
+        background: rgba(255, 166, 0, 0.192);
+        box-shadow: 0px 0px 20px 2px rgba(255, 166, 0, 0.075);
+    }
+    to {
+        background: rgba(44, 44, 44, 0.041);
+        box-shadow: 0px 0px 20px 2px rgba(255, 166, 0, 0);
+    }
+}
+@keyframes rise {
+    from {
+        transform:translateY(100%);
+        height:0;
+    }
+    to {
+        transform:translateY(0%);
+        height:min-content;
+    }
+}
+#debug_output > .debug {
+    height:min-content;
+    display:flex;
+    align-items:center;
+    margin:0px 0px 15px 15px;
+    color:white;
+    font-family:monospace;
+    font-weight:100;
+    user-select:none;
+    animation: rise 0.5s ease;
+}
+
+.debug.warn {
+    background:transparent;
+}
+.debug.notice {
+    background:transparent;
+}
+.warn-symbol {
+    vertical-align:middle;
+    height:1rem;
+    display:inline;
+    margin-right:5px;
+    padding:0.3rem;
+    border-radius:100%;
+    background:rgba(200, 23, 0, 0.2);
+}
+.notice-symbol {
+    vertical-align:middle;
+    height:1rem;
+    display:inline;
+    margin-right:5px;
+    padding:0.3em;
+    border-radius:100%;
+    background:rgba(200, 113, 0, 0.2);
+}
+.info-symbol {
+    vertical-align:middle;
+    height:1rem;
+    display:inline;
+    margin-right:5px;
+    padding:0.3em;
+    border-radius:100%;
+    background:rgba(62, 74, 182, 0.2);
+}
+
+.chevron-symbol {
+    font-family:'Libre Franklin';
+    vertical-align:middle;
+    height:1rem;
+    width:1rem;
+    display:inline;
+    margin-right:5px;
+    padding:0.3em;
+    border-radius:100%;
+    background:rgba(0, 70, 200, 0);
+}
+
+.log-count {
+    background:grey;
+    padding-left:4px;
+    padding-right:4px;
+    border-radius:5px;
+    margin-left:5px;
+}
+
+
+/* td:before {
+    position:absolute;
+    content:"";
+    z-index:0;
+    width:inherit;
+    height:inherit;
+    background:red;
+    transform:  rotate(1.5deg) translateX(10px) translateY(15px) skewX(4deg) skewY(-4deg);
+} */
+@keyframes hint_reveal {
+    from {
+        transform:translate(-50%, -50%);
+        opacity:0;
+    } to {
+        transform:translate(-50%, -100%);
+        opacity:1;
+    }
+}
+@keyframes hint_hide {
+    from {
+        transform:translate(-50%, -100%);
+        opacity:1;
+    } to {
+        transform:translate(-50%, -50%);
+        opacity:0;
+    }
+}
+.hover_hint {
+    transition:0.2s ease;
+    font-size:0.7rem;
+    font-variation-settings:'wght' 500;
+    padding:4px 10px;
+    background:rgb(207, 207, 207);
+    color:black;
+    border-radius:5px;
+    transform:translate(-50%, -100%);
+    animation: hint_reveal 0.2s ease forwards;
+}
+.hover_hint.hidden {
+    animation: hint_hide 0.2s ease forwards;
+}
+
+button.activated {
+    border-color:white;
+    background:white;
+}
+button.activated > img {
+    filter:invert(1);
+}
+
+.lock {
+    pointer-events:none;
+    cursor:not-allowed!important;
+    opacity:0.2;
+    user-select:none!important;
+}
+input.lock + h4 {
+    opacity:0.2;
+}
+

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- <meta http-equiv="X-UA-Compatible" content="ie=edge"> -->
+        <title>Path Star</title>
+        <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="style2.css">
+    </head>
+    <body>
+        <div id="overlay" class="invisible">
+            <div id="splash" class="pop-up shrink">
+                <div class="bg-fx">
+                    <div></div>
+                </div>
+                <div id="splash_topbar" class="topbar">
+                    <a id="about_app" class="title" href="https://www.shandilis.dev">
+                        v0.2 • created by Alex Shandilis
+                    </a>
+                    <button class="close_btn" onclick="toggle_splash()">
+                        ×
+                    </button>
+                </div>
+                <div id="splash_title">
+                    Path Star
+                </div>
+                <button id="splash_button">
+                    enter
+                </button>
+            </div>
+            <div id="prefs" class="pop-up shrink">
+                <div class="bg-fx">
+                    <div></div>
+                </div>
+                <div id="prefs_topbar" class="topbar">
+                    <a id="prefstitle" class="title">
+                        preferences
+                    </a>
+                    <button class="close_btn" onclick="toggle_prefs()">
+                        ×
+                    </button>
+                </div>
+                <div class="content">
+
+                </div>
+            </div>
+            <div id="mobile-warning">
+
+            </div>
+        </div>
+        <div id="container">
+            <div id="header">
+                <!-- <div id="title">
+                   Path Star 
+                </div> -->
+                <div id="palette">
+                    <input type="text" spellcheck="false">
+                    <div id="hint">
+                        <key_hint>CTRL</key_hint>
+                        +
+                        <key_hint>ALT</key_hint>
+                        +
+                        <key_hint>P</key_hint>
+                        to open the command palette
+
+                    </div>
+                    <div id="suggestions">
+
+                    </div>
+                </div>
+                <div id="links">
+
+                </div>
+            </div>
+            <div id="body">
+                <table id="table">
+                    <tr>
+                        <td></td>
+                    </tr>
+                </table>
+                <div id="debug_output">
+                    <div class="title">
+                        OUTPUT
+                    </div>
+                </div>
+            </div>
+            <div id="footer">
+                <div id="widget_container" class="">
+                    <div class="widget" id="undo_redo">
+                        <h5></h5>
+                        <div class="controls">
+                            <button id="undo_btn" class="btn" tabindex="1" hover_hint="undo">
+                                <img src="icons/undo.svg" alt="paintbrush">
+                            </button>
+                            <button id="redo_btn" class="btn" tabindex="1.1" hover_hint="redo">
+                                <img src="icons/redo.svg" alt="home">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="widget" id="dim_controls">
+                        <h5></h5>
+                        <div class="controls">
+                            <input id="width_in" type="number" class="number" value="10" tabindex="1.2" label="width input" placeholder="width" hover_hint="set the number of columns in the grid">
+                            <h4>by</h4>
+                            <input id="height_in" type="number" class="number" value="10" tabindex="2" label="height input" placeholder="height" hover_hint="set the number of rows in the grid">
+                        </div>
+                    </div>
+                    <div class="widget" id="design_controls">
+                        <h5></h5>
+                        <div class="controls">
+                            <button id="clear_btn" class="btn" tabindex="6" hover_hint="clear the grid" onclick="grid.clear_walls();" onmouseleave="this.blur();">
+                                <img src="icons/clear.svg" alt="clear">
+                            </button>
+                            <button id="add_wall_btn" class="btn" tabindex="2.1" hover_hint="paint new walls in the grid" onclick="grid.toggle_paint();">
+                                <img src="icons/paint.svg" alt="paintbrush">
+                            </button>
+                            <button id="add_start_btn" class="btn" tabindex="2.2" hover_hint="set a new location for the start" onclick="grid.start_move(0);">
+                                <img src="icons/home.svg" alt="home">
+                            </button>
+                            <button id="add_finish_btn" class="btn" tabindex="2.3" hover_hint="set a new location for the finish" onclick="grid.start_move(1);">
+                                <img src="icons/flag.svg" alt="flag">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="widget" id="maze_controls">
+                        <h5></h5>
+                        <div class="controls">
+                            <!-- <div class="selector" style="width:10.5rem!important;"></div> -->
+                            <!-- <input class="selector" type="text"value="djikstra's algorithm"> -->
+                            <div class="selector" tabindex="4" hover_hint="choose a maze generation algorithm" onclick="palette.activate_command('maze:configure')">djikstra's algorithm
+                                <div class="indicator">
+                                    <img src="icons/unfold.svg">
+                                </div>
+                            </div>
+                            <button id="randomize_btn" class="btn" tabindex="5" hover_hint="generate a new maze" onclick="sim.gen_maze();">
+                                <img src="icons/randomize.svg" alt="randomize">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="widget" id="alg_controls">
+                        <h5></h5>
+                        <div class="controls">
+                            <!-- <div class="selector" style="width:10.5rem!important;"></div> -->
+                            <!-- <input class="selector" type="text"value="djikstra's algorithm"> -->
+                            <div class="selector" tabindex="3" hover_hint="choose a new path-finding algorithm" onclick="palette.activate_command('path:configure');">djikstra's algorithm
+                                <div class="indicator">
+                                    <img src="icons/unfold.svg">
+                                </div>
+                            </div>
+                            <button id="gen_path_btn" class="btn" tabindex="7" hover_hint="run the path simulation!" onclick="sim.gen_path();">
+                                <img src="icons/runner.svg" alt="path runner">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="widget" id="main_controls">
+                        <h5></h5>
+                        <div class="controls">
+                            <button id="timing_btn" class="btn" tabindex="8" hover_hint="adjust simulation timing">
+                                <img src="icons/timer.svg" alt="timing">
+                            </button>
+                            <button id="reset_btn" class="btn" tabindex="7" hover_hint="reset" onclick="sim.reset();">
+                                <img src="icons/restart.svg" alt="restart">
+                            </button>
+                            <button id="skip_back_btn" class="btn" tabindex="9" hover_hint="skip back">
+                                <img src="icons/skip_back.svg" alt="skip back">
+                            </button>
+                            <button id="skip_next_btn" class="btn" tabindex="9" hover_hint="skip forwards">
+                                <img src="icons/skip_next.svg" alt="skip forwards">
+                            </button>
+                            <button id="start_btn" class="btn" tabindex="9" hover_hint="select path or maze generation first" onclick="sim.pausePlay()">
+                                <img src="icons/play.svg" alt="play">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="grid.js"></script>
+        <script type="text/javascript" src="main.js"></script>
+        <script type="text/javascript" src="randomized_prim.js"></script>
+        <script type="text/javascript" src="weighted_randomized_prim.js"></script>
+        <script type="text/javascript" src="basic_randomized_prim.js"></script>
+        <script type="text/javascript" src="djikstra.js"></script>
+        <script type="text/javascript" src="driver.js"></script>
+        <script type="text/javascript" src="palette.js"></script>
+    </body>
+</html>
