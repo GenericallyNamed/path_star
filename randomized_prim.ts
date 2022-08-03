@@ -149,8 +149,10 @@ class ChaoticRandomizedPrim {
     }
     reset_marked_cell():void {
         let prev_c:any = document.querySelector("td.marked");
-        prev_c!.classList.remove("marked");
-        prev_c!.style.background = prev_c.default_color;
+        if(prev_c !== null && prev_c !== undefined) {
+            prev_c!.classList.remove("marked");
+            prev_c!.style.background = prev_c.default_color;
+        }
     }
     reset():void {
         for(var i = 0; i < this.walls.length; i++) {

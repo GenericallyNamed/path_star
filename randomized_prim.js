@@ -158,8 +158,10 @@ var ChaoticRandomizedPrim = /** @class */ (function () {
     };
     ChaoticRandomizedPrim.prototype.reset_marked_cell = function () {
         var prev_c = document.querySelector("td.marked");
-        prev_c.classList.remove("marked");
-        prev_c.style.background = prev_c.default_color;
+        if (prev_c !== null && prev_c !== undefined) {
+            prev_c.classList.remove("marked");
+            prev_c.style.background = prev_c.default_color;
+        }
     };
     ChaoticRandomizedPrim.prototype.reset = function () {
         var _a;

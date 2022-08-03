@@ -6,7 +6,7 @@ window.onerror = function(msg,url,line) {
 }
 
 // meta
-var app_ver:string = "0.5.0";
+var app_ver:string = "0.5.1 infdev";
 document.querySelector("#about_app.title")!.innerHTML = "v" + app_ver + " • created by Alex Shandilis"
 // globals & defaults
 var winHeight = window.innerHeight;
@@ -25,6 +25,7 @@ var run_btn:any = document.getElementById("start_btn");
 var skip_back_btn:any = document.getElementById("skip_back_btn");
 var skip_next_btn:any = document.getElementById("skip_next_btn");
 var restart_btn:any = document.getElementById("reset_btn");
+var stop_btn:any = document.getElementById("stop_btn");
 var clear_btn:any = document.getElementById("clear_btn");
 var paint_btn:any = document.getElementById("add_wall_btn");
 var set_start_btn:any = document.getElementById("add_start_btn");
@@ -90,10 +91,7 @@ window.addEventListener("resize", function() {
     update_window();
 });
 
-// grid configurations
 
-grid.set_start(1,1);
-grid.set_finish(5,5);
 
 h_in.addEventListener("change", function() {
     let v = parseInt(h_in.value);
@@ -188,6 +186,7 @@ class Debugger {
     }
 
     log(debug:string) {
+        var handler = new Error();
         var prev_l:any = document.querySelector("#debug_output")!.lastChild;
         if(prev_l!.childNodes[1].textContent === " " + debug + " ") {
             let num:number = parseInt(prev_l!.querySelector(".log-count").innerHTML);
@@ -205,10 +204,14 @@ class Debugger {
     }
     
     alert(alert:string) {
+        var handler = new Error();
+        var s:string = handler!.stack!;
+        console.log(s);
+        var line_num:string = s.substring(s.indexOf(":", s.indexOf(".js", s.indexOf("at", s.indexOf("at") + 1))) + 1, s.indexOf(":", s.indexOf(":", s.indexOf(".js", s.indexOf("at", s.indexOf("at") + 1))) + 1));
         let a:HTMLElement = document.createElement('div');
         a.classList.add("debug");
         a.classList.add("warn");
-        a.innerHTML = "<img src='icons/warn.svg' class='warn-symbol'> " + alert;
+        a.innerHTML = "<img src='icons/warn.svg' class='warn-symbol'> " + ("<line_num>" + line_num + ":</line_num> ") + alert;
         this.d_elem.appendChild(a);
         this.hide_elems_offscreen();
         if(document.querySelectorAll(".warn-symbol").length > 5) {
@@ -217,6 +220,7 @@ class Debugger {
     }
 
     notice(notice:string) {
+        var handler = new Error();
         let a:HTMLElement = document.createElement('div');
         a.classList.add("debug");
         a.classList.add("notice");
@@ -293,8 +297,21 @@ class HoverHint {
             let e:HTMLElement = document.createElement('div');  
             var x:number = this.elem.offsetLeft + (this.elem.offsetWidth / 2);
             var y:number = this.elem.offsetTop - 10;
+            var text:string;
+            if(this.elem.hasAttribute("hover_warn")) {
+                e.classList.add("warn");
+                text = this.get_hint();
+            } else if(this.elem.hasAttribute("hover_notice")) {
+                e.classList.add("notice");
+                text = this.get_hint();
+            } else {
+                text = this.get_hint();
+            }
+            if(this.elem.hasAttribute("hover_tag")) {
+                text = text + "<i> —" + this.elem.getAttribute("hover_tag") + " </i>"
+            }
+            e.innerHTML = text;
             e.classList.add("hover_hint");
-            e.innerText = this.get_hint();
             e.style.position = "absolute";
             e.style.left = x + "px";
             e.style.top = y + "px";
@@ -371,20 +388,20 @@ class UserInterface {
     }
 
     maze_gen_lock() {
-        randomize_btn.classList.add("lock");
-        maze_selector.classList.add("lock");
+        this.disable(randomize_btn);
+        this.disable(maze_selector);
     }
     maze_gen_unlock() {
-        randomize_btn.classList.remove("lock");
-        maze_selector.classList.remove("lock");
+        this.enable(randomize_btn);
+        this.enable(maze_selector);
     }
     path_gen_lock() {
-        gen_path_btn.classList.add("lock");
-        path_selector.classList.add("lock");
+        this.disable(gen_path_btn);
+        this.disable(path_selector);
     }
     path_gen_unlock() {
-        gen_path_btn.classList.remove("lock");
-        path_selector.classList.remove("lock");
+        this.enable(gen_path_btn);
+        this.enable(path_selector);
     }
 
     // specific locks
@@ -395,12 +412,12 @@ class UserInterface {
 
     }
     dim_lock():void {
-        h_in.classList.add("lock");
-        w_in.classList.add("lock");
+        this.disable(h_in);
+        this.disable(w_in);
     }
     dim_unlock():void {
-        h_in.classList.remove("lock");
-        w_in.classList.remove("lock");
+        this.enable(h_in);
+        this.enable(w_in);
     }
     undo_redo_lock():void {
         this.undo_lock();
@@ -412,17 +429,16 @@ class UserInterface {
         this.redo_unlock();
     }
     undo_lock():void {
-        undo_btn.classList.add("lock");
+        this.disable(undo_btn);
     }
     undo_unlock():void {
-        undo_btn.classList.remove("lock");
+        this.enable(undo_btn);
     }
     redo_lock():void {
-        redo_btn.classList.add("lock");
-        
+        this.disable(redo_btn);
     }
     redo_unlock():void {
-        redo_btn.classList.remove("lock");
+        this.enable(redo_btn);
 
     }
     grid_lock():void {
@@ -433,47 +449,42 @@ class UserInterface {
     }
 
     design_lock():void {
-        clear_btn.classList.add("lock");
-        set_start_btn.classList.add("lock");
-        set_finish_btn.classList.add("lock");
+        this.disable(clear_btn);
+        this.disable(set_start_btn);
+        this.disable(set_finish_btn);
         this.paint_btn_lock();
         this.grid_lock();
         this.undo_redo_lock();
     }
     design_unlock():void {
-        clear_btn.classList.remove("lock");
-        set_start_btn.classList.remove("lock");
-        set_finish_btn.classList.remove("lock");
+        this.enable(clear_btn);
+        this.enable(set_start_btn);
+        this.enable(set_finish_btn);
+        this.path_gen_unlock();
+        this.maze_gen_unlock();
         this.paint_btn_unlock();
         this.grid_unlock();
         this.undo_redo_unlock();
     }
     skip_btn_lock():void {
-        skip_back_btn.disabled = true;
-        skip_back_btn.disabled = true;
-        skip_back_btn.classList.add("lock");
-        skip_next_btn.classList.add("lock");
+        this.disable(skip_back_btn);
+        this.disable(skip_next_btn);
     }
     skip_btn_unlock():void {
-        skip_back_btn.disabled = false;
-        skip_next_btn.disabled = false;
-        skip_back_btn.classList.remove("lock");
-        skip_next_btn.classList.remove("lock");
+        this.enable(skip_back_btn);
+        this.enable(skip_next_btn);
     }
     restart_btn_lock():void {
-        restart_btn.disabled = true;
-        restart_btn.classList.add("lock");
+        this.disable(restart_btn);
     }
     restart_btn_unlock():void {
-        restart_btn.disabled = false;
-        restart_btn.classList.remove("lock");
+        this.enable(restart_btn);
     }
     paint_btn_lock():void {
-        paint_btn.classList.add("lock");
+        this.disable(paint_btn);
     }
     paint_btn_unlock():void {
-        paint_btn.classList.remove("lock");
-
+        this.enable(paint_btn);
     }
 
     set_play_btn_type(type:number) {
@@ -486,32 +497,87 @@ class UserInterface {
         }
     }
 
+    disable(button:any):void {
+        button.disabled = true;
+        button.tab_index = parseInt(button.getAttribute("tabindex"));
+        button.setAttribute("tabIndex", -1);
+        button.classList.add("lock");
+    }
+    enable(button:any):void {
+        button.disabled = false;
+        button.setAttribute("tabIndex", button.tab_index);
+        button.classList.remove("lock");
+    }
+
     add_warning(button:any):void {
         button.classList.add("warning");
-        var w = document.createElement<any>("img");
-        w.btn = button;
-        w.setAttribute("src","icons/warning.svg");
-        button.w = w;
-        w.style.position = "absolute";
-        w.style.width = "1rem";
-        w.style.height = "1rem";
-        document.body.appendChild(w);
-        w.style.left = (button.offsetWidth + button.offsetLeft - (w.offsetWidth * 0.6)) + "px";
-        w.style.top = (button.offsetTop - (w.offsetHeight * 0.4)) + "px";
+        var warning_icon = document.createElement<any>("img");
+        warning_icon.classList.add("button_warning_icon");
+        warning_icon.btn = button;
+        warning_icon.setAttribute("src","icons/warning.svg");
+        button.warning_icon = warning_icon;
+        warning_icon.style.position = "absolute";
+        warning_icon.style.width = "1rem";
+        warning_icon.style.height = "1rem";
+        document.body.appendChild(warning_icon);
+        warning_icon.style.left = (button.offsetWidth + button.offsetLeft - (warning_icon.offsetWidth * 0.6)) + "px";
+        warning_icon.style.top = (button.offsetTop - (warning_icon.offsetHeight * 0.4)) + "px";
     }
     remove_warning(button:any):void {
         button.classList.remove("warning");
-        button.w.remove();
+        if(button.warning_icon !== undefined) button.w.remove();
+    }
+    
+    add_notice(button:any):void {
+        button.classList.add("notice");
+        var notice_icon = document.createElement<any>("img");
+        notice_icon.classList.add("button_notice_icon");
+        notice_icon.btn = button;
+        notice_icon.setAttribute("src","icons/notice_filled.svg");
+        button.n_icon = notice_icon;
+        notice_icon.style.position = "absolute";
+        notice_icon.style.width = "1rem";
+        notice_icon.style.height = "1rem";
+        document.body.appendChild(notice_icon);
+        notice_icon.style.left = (button.offsetWidth + button.offsetLeft - (notice_icon.offsetWidth * 0.6)) + "px";
+        notice_icon.style.top = (button.offsetTop - (notice_icon.offsetHeight * 0.4)) + "px";
+    }
+    remove_notice(button:any):void {
+        button.classList.remove("notice");
+        if(button.n_icon !== undefined) button.n_icon.remove();
     }
 
+    create_load_animation(container_elem:any):void {
+        var anim_container = document.createElement("div");
+        anim_container.classList.add("anim_elem");
+        let container:any = container_elem;
+        anim_container.style.borderRadius = getComputedStyle(container).borderRadius;
+        anim_container.style.width = container.offsetWidth + "px";
+        anim_container.style.height = container.offsetHeight + "px";
+        anim_container.style.left = container.offsetLeft + "px";
+        anim_container.style.top = container.offsetTop + "px";
+        var anim_elem = document.createElement('div');
+        anim_elem.classList.add("anim_elem_i");
+        anim_container.appendChild(anim_elem);
+        document.body.appendChild(anim_container);
+
+    }
     // button lock data store
 
 }
 
-// ui = new UserInterface();
+ui = new UserInterface();
+grid.set_ui(ui);
+// grid configurations
+// ui.create_load_animation(randomize_btn);
+grid.set_start(1,1);
+grid.set_finish(5,5);
+
 ui.restart_btn_lock();
+ui.disable(restart_btn);
+ui.disable(stop_btn);
 ui.skip_btn_lock();
-ui.add_warning(gen_path_btn);
+// ui.add_warning(gen_path_btn);
 
 function add_warn(button:any) {
     ui.add_warning(button);

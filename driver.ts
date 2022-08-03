@@ -216,7 +216,7 @@ class djikstra {
 
 class Simulator {
     constructor() {
-        this.set_delay(150);
+        this.set_delay(15);
     }
     run():void {
         if(this.start_completed === false) {
@@ -231,6 +231,7 @@ class Simulator {
                     if(this.path_alg.complete) {
                         this.active = false;
                         ui.pause();
+                        debug.log("complete!");
                     }
                 } catch(e) {
                     this.pause();
@@ -252,7 +253,8 @@ class Simulator {
                         this.active = false;
                         ui.pause();
                         ui.design_unlock();
-                    }
+                        debug.log("complete!");
+                    } 
                 } catch(e) {
                     this.pause();
                     debug.alert("An error occured with the simulator. You can make a bug report at <a href='https://github.com/genericallynamed' style='text-decoration:underline;display:contents;'>github.com/genericallynamed</a>" + ". <a style='color:orange;display:contents'> Error message: " + e + "</a>");

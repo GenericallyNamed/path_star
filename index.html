@@ -16,7 +16,7 @@
                     <div></div>
                 </div>
                 <div id="splash_topbar" class="topbar">
-                    <a id="about_app" class="title" href="https://www.shandilis.dev">
+                    <a id="about_app" class="title" href="https://www.shandilis.dev" tabindex="-1">
                         v0.2 • created by Alex Shandilis
                     </a>
                     <button class="close_btn" onclick="toggle_splash()">
@@ -89,7 +89,6 @@
             <div id="footer">
                 <div id="widget_container" class="">
                     <div class="widget" id="undo_redo">
-                        <h5></h5>
                         <div class="controls">
                             <button id="undo_btn" class="btn" tabindex="1" hover_hint="undo">
                                 <img src="icons/undo.svg" alt="paintbrush">
@@ -100,7 +99,6 @@
                         </div>
                     </div>
                     <div class="widget" id="dim_controls">
-                        <h5></h5>
                         <div class="controls">
                             <input id="width_in" type="number" class="number" value="10" tabindex="1.2" label="width input" placeholder="width" hover_hint="set the number of columns in the grid">
                             <h4>by</h4>
@@ -108,7 +106,6 @@
                         </div>
                     </div>
                     <div class="widget" id="design_controls">
-                        <h5></h5>
                         <div class="controls">
                             <button id="clear_btn" class="btn" tabindex="6" hover_hint="clear the grid" onclick="grid.clear_walls();" onmouseleave="this.blur();">
                                 <img src="icons/clear.svg" alt="clear">
@@ -125,7 +122,6 @@
                         </div>
                     </div>
                     <div class="widget" id="maze_controls">
-                        <h5></h5>
                         <div class="controls">
                             <!-- <div class="selector" style="width:10.5rem!important;"></div> -->
                             <!-- <input class="selector" type="text"value="djikstra's algorithm"> -->
@@ -140,11 +136,10 @@
                         </div>
                     </div>
                     <div class="widget" id="alg_controls">
-                        <h5></h5>
                         <div class="controls">
                             <!-- <div class="selector" style="width:10.5rem!important;"></div> -->
                             <!-- <input class="selector" type="text"value="djikstra's algorithm"> -->
-                            <div class="selector" tabindex="3" hover_hint="choose a new path-finding algorithm" onclick="palette.activate_command('path:configure');">djikstra's algorithm
+                            <div class="selector" tabindex="6" hover_hint="choose a new path-finding algorithm" onclick="palette.activate_command('path:configure');">djikstra's algorithm
                                 <div class="indicator">
                                     <img src="icons/unfold.svg">
                                 </div>
@@ -155,21 +150,23 @@
                         </div>
                     </div>
                     <div class="widget" id="main_controls">
-                        <h5></h5>
                         <div class="controls">
-                            <button id="timing_btn" class="btn" tabindex="8" hover_hint="adjust simulation timing">
+                            <button id="timing_btn" class="btn" tabindex="7.1" hover_hint="adjust simulation timing">
                                 <img src="icons/timer.svg" alt="timing">
                             </button>
-                            <button id="reset_btn" class="btn" tabindex="7" hover_hint="reset" onclick="sim.reset();">
+                            <button id="reset_btn" class="btn" tabindex="7.2" hover_hint="reset" onclick="sim.reset();">
                                 <img src="icons/restart.svg" alt="restart">
+                            </button>
+                            <button id="stop_btn" class="btn" tabindex="7.3" hover_hint="stop" onclick="sim.reset();">
+                                <img src="icons/stop.svg" alt="restart">
                             </button>
                             <button id="skip_back_btn" class="btn" tabindex="9" hover_hint="skip back">
                                 <img src="icons/skip_back.svg" alt="skip back">
                             </button>
-                            <button id="skip_next_btn" class="btn" tabindex="9" hover_hint="skip forwards">
+                            <button id="skip_next_btn" class="btn" tabindex="10" hover_hint="skip forwards">
                                 <img src="icons/skip_next.svg" alt="skip forwards">
                             </button>
-                            <button id="start_btn" class="btn" tabindex="9" hover_hint="select path or maze generation first" onclick="sim.pausePlay()">
+                            <button id="start_btn" class="btn" tabindex="11" hover_hint="select path or maze generation first" onclick="sim.pausePlay()">
                                 <img src="icons/play.svg" alt="play">
                             </button>
                         </div>

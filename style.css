@@ -365,6 +365,10 @@ table tr:first-child td:first-child {
     border-color:red!important;
     border-width:1.5px!important;
 }
+.notice {
+    border-color:orange!important;
+    border-width:1.5px!important;
+}
 
 input {
     background:none;

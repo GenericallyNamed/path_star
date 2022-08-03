@@ -146,7 +146,8 @@ class Grid {
         let old = this.grid_object.querySelector(".start");
         old?.classList.remove("start");
         this.grid_object.rows[y].cells[x].classList.add("start");
-        remove_warn(set_start_btn);
+        this.move_start_btn.removeAttribute("hover_tag");
+        this.ui.remove_notice(this.move_start_btn);
     }
     set_finish(x:number, y:number) {
         this.finish_x = x;
@@ -154,7 +155,8 @@ class Grid {
         let old = this.grid_object.querySelector(".finish");
         old?.classList.remove("finish");
         this.grid_object.rows[y].cells[x].classList.add("finish");
-        remove_warn(set_finish_btn);
+        this.move_finish_btn.removeAttribute("hover_tag");
+        this.ui.remove_notice(this.move_finish_btn);
     }
 
     add_wall(x:number, y:number):void {
@@ -316,12 +318,14 @@ class Grid {
             this.floating_elem.style.transform = "scale(1)";
             if(type == 0) { 
                 this.move_start_btn.classList.add("activated");
+                this.ui.remove_notice(this.move_start_btn);
                 this.remove_start(); 
                 this.floating_elem.classList.add("floating_start"); 
                 this.floating_elem.classList.remove("floating_finish");
             }
             else if(type == 1) { 
                 this.move_finish_btn.classList.add("activated");
+                this.ui.remove_notice(this.move_finish_btn);
                 this.remove_finish(); 
                 this.floating_elem.classList.add("floating_finish"); 
                 this.floating_elem.classList.remove("floating_start");
@@ -415,7 +419,10 @@ class Grid {
         }
         this.start_x = -1;
         this.start_y = -1;
-        add_warn(set_start_btn);
+        if(!this.moving_elem) {
+            this.ui.add_notice(this.move_start_btn);
+            this.move_start_btn.setAttribute("hover_tag","missing from the grid");
+        }
     }
     remove_finish() {
         if(this.get_finish() !== undefined) {
@@ -423,7 +430,10 @@ class Grid {
         }
         this.finish_x = -1;
         this.finish_y = -1;
-        add_warn(set_finish_btn);
+        if(!this.moving_elem) {
+            this.ui.add_notice(this.move_finish_btn);
+            this.move_finish_btn.setAttribute("hover_tag","missing from the grid");
+        }
     }
     remove_start_finish() {
         debug.notice("Both the start and finish nodes have been cleared from the grid. They can be re-added by using the buttons below once the maze has been cleared or finished generating.");
@@ -431,6 +441,10 @@ class Grid {
         this.remove_finish();
     }
 
+    set_ui(ui:any):void {
+        this.ui = ui;
+    }
+    ui:any;
     has_start:boolean = true;
     has_finish:boolean = true;
 }

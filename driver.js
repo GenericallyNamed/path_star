@@ -215,7 +215,7 @@ var Simulator = /** @class */ (function () {
         this.d = 0;
         this.paused = false;
         this.active = false;
-        this.set_delay(150);
+        this.set_delay(15);
     }
     Simulator.prototype.run = function () {
         if (this.start_completed === false) {
@@ -230,6 +230,7 @@ var Simulator = /** @class */ (function () {
                     if (this.path_alg.complete) {
                         this.active = false;
                         ui.pause();
+                        debug.log("complete!");
                     }
                 }
                 catch (e) {
@@ -254,6 +255,7 @@ var Simulator = /** @class */ (function () {
                         this.active = false;
                         ui.pause();
                         ui.design_unlock();
+                        debug.log("complete!");
                     }
                 }
                 catch (e) {
