@@ -6,7 +6,7 @@ window.onerror = function(msg,url,line) {
 }
 
 // meta
-var app_ver:string = "0.6.2 alpha";
+var app_ver:string = "0.7.0 alpha";
 document.querySelector("#about_app.title")!.innerHTML = "v" + app_ver + " • created by Alex Shandilis"
 // globals & defaults
 var winHeight = window.innerHeight;
@@ -261,8 +261,8 @@ class Debugger {
 }
 var debug = new Debugger(document.getElementById("debug_output"));
 
-debug.alert("This app is in-development. Errors and in-stability are likely to occur. If you encounter freezing or other major issues, please let me know via my GitHub, <a href='https://github.com/genericallynamed'>github.com/genericallynamed</a>");
-debug.notice("Due to optimization issues with HTML tables, it is recommended to not use a table with dimensions greater than 30 by 30.");
+debug.alert("Path Star is in-development, so you may encounter errors or instability. If issues do occur, please let me know via my GitHub, <a href='https://github.com/genericallynamed'>github.com/genericallynamed</a>");
+debug.notice("Due to optimization issues with HTML tables, it is not recommended to create a grid with dimensions greater than 30 by 30.");
 debug.info("Path Star v" + app_ver + " by Alex Shandilis"); 
 
 class HoverHint {
