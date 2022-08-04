@@ -1,5 +1,7 @@
 // export {};
 
+import { addSyntheticLeadingComment, updateIndexSignature } from "typescript";
+
 // declare global {
 //     interface Window { iterations: any; algorithm: number;}
 // }
@@ -219,41 +221,33 @@ class Simulator {
         this.set_delay(15);
     }
     run():void {
-        if(this.start_completed === false) {
+        if(this.start_completed && this.active) {
             debug.notice("Controls for updating the grid and modifying other variables are locked until the simulation is paused.");
             grid.lock();
             this.start_completed = true;
         }
+        console.log("run");
         if(!this.paused) {
             if(this.type === 1) {
                 try {
-                    this.path_alg.step();
-                    if(this.path_alg.complete) {
-                        this.active = false;
-                        ui.pause();
-                        debug.log("complete!");
-                    }
+                    this.path_step();
                 } catch(e) {
                     this.pause();
                     debug.alert("An error occured with the simulator. You can make a bug report at <a href='https://github.com/genericallynamed' style='text-decoration:underline;display:contents;'>github.com/genericallynamed</a>" + ". Please provide specific details on the program's configuration to help me discern the origin of this error. <a style='color:orange;display:contents'> Error message: " + e + "</a>");
                     this.reset();
                 }
-                if(!this.path_alg.complete) {
+                if(!this.path_complete) {
                     setTimeout((s:Simulator) => {
                         s.run();
                     }, this.get_delay(), this);
                 } else {
-                    debug.log("fart test");
                     this.driver(this.path_alg.route, 0);
                 }
             } else if(this.type === 0) {
                 try {
                     this.maze_alg.step();
-                    if(this.maze_alg.complete) {
-                        this.active = false;
-                        ui.pause();
-                        ui.design_unlock();
-                        debug.log("complete!");
+                    if(this.maze_alg.complete && !this.maze_gen_final) {
+                        this.complete();
                     } 
                 } catch(e) {
                     this.pause();
@@ -271,6 +265,100 @@ class Simulator {
         }
     }
     
+    step():void {
+        if(this.active) {
+            if(this.type === 0) {
+                if(!this.maze_alg.complete) {
+                    this.maze_alg.step();
+                    if(this.maze_alg.complete) {
+                        this.complete();
+                    }
+                }
+            } else if(this.type === 1) {
+                this.path_step();
+            }
+        } 
+    }
+
+    path_step():void {
+        if(!this.path_alg.complete) {
+            this.path_alg.step();
+        } else if(!this.path_complete) {
+            console.log("pathing");
+            this.path_route = this.path_alg.route;
+            this.pathing = true;
+            this.travel();
+        } else {
+            this.pathing = false;
+            this.complete();
+        }
+    }
+
+    travel():void {
+        var c:boolean = false;
+        if(this.p_index !== this.path_route.length) {
+            this.path_route[this.p_index].classList.add("traveled");
+            if(this.p_index > 0) {
+                var pX:number = this.path_route[this.p_index - 1].x,
+                    pY:number = this.path_route[this.p_index - 1].y,
+                    X:number = this.path_route[this.p_index].x,
+                    Y:number = this.path_route[this.p_index].y,
+                    dX:number = X - pX,
+                    dY:number = Y - pY;
+                if(dX !== 0) {
+                    // moving up-down
+                    if(dX === 1 as number) {
+                        this.path_route[this.p_index].style.borderLeft = "0px solid";
+                        this.path_route[this.p_index - 1].style.borderRight = "0px solid";
+                        console.log('testtesttesttest');
+                    } else if(dX == -1 as number) {
+                        this.path_route[this.p_index].style.borderRight = "0px solid";
+                        this.path_route[this.p_index - 1].style.borderLeft = "0px solid";
+                        console.log('testtesttesttest');
+                    }
+                } else if(dY !== 0) {
+                    // moving left-right
+                    if(dY == 1) {
+                        this.path_route[this.p_index].style.borderTop = "0px solid";
+                        this.path_route[this.p_index - 1].style.borderBottom = "0px solid";
+                        console.log('testtesttesttest');
+                    } else if(dY == -1) {
+                        this.path_route[this.p_index].style.borderBottom = "0px solid";
+                        this.path_route[this.p_index - 1].style.borderTop = "0px solid";
+                        console.log('testtesttesttest');
+                    }
+                }
+            }
+        } else {
+            c = true;
+            this.p_index = 0;
+            this.path_complete = true;
+            this.complete();
+        }
+        if(!c) {
+            this.p_index++;
+        }
+    }
+    
+    complete():void {
+        if(this.type == 0) {
+            this.active = false;
+            ui.pause();
+            ui.customization_unlock();
+            debug.log("complete!");
+            this.maze_gen_final = true;
+            ui.set_play_btn_type(1);
+            ui.disable(skip_next_btn);
+            ui.disable(stop_btn);
+            grid.activate_paint();
+        } else if(this.type == 1) {
+            this.active = false;
+            ui.pause();
+            debug.log("complete!");
+            ui.disable(run_btn);
+        }
+    }
+
     pause():void {
         ui.restart_btn_unlock();
         ui.skip_btn_unlock();
@@ -283,8 +371,12 @@ class Simulator {
         this.paused = true;
     }
     play():void {
+        run_btn.setAttribute("onclick","sim.pausePlay()");
         ui.restart_btn_lock();
         ui.skip_btn_lock();
+        if(this.type == 0) {
+            ui.enable(stop_btn);
+        }
         ui.play();
         ui.customization_lock();
         this.paused = false;
@@ -301,36 +393,58 @@ class Simulator {
             debug.notice("To begin running the simulation, please select either the maze generator or path simulator buttons.");
         }
     }
+    stop():void {
+        if(this.type == 0) {
+            debug.log("Stopped the maze generator");
+            this.active = false;
+            this.pause();
+            this.maze_alg.reset();
+            ui.disable(stop_btn);
+            ui.design_unlock();
+            ui.set_play_btn_type(2);
+        }
+    }
 
     gen_maze():void {
         if(!this.active) {
+            this.maze_gen_final = false;
             this.active = true;
             run_btn.onclick = function() {
                 sim.pausePlay();
             }
-            this.play();
             ui.customization_lock();
             ui.restart_btn_lock();
             ui.skip_btn_lock();
             this.type = 0;
             grid.deactivate_paint();
             grid.remove_start_finish();
-            this.run();
+            this.play();
+        } else if(this.active) {
+            debug.notice((this.type === 0) ? "Cannot do this while a maze is already being generated." : "Cannot do this while the pathing simulation is running!");
+        } else {
+            debug.alert("An error occurred")
         }
     }
     
     gen_path():void {
-        if(!this.active) {
+        if(!this.active && grid.has_finish && grid.has_start) {
+            this.type = 1;
+            this.path_complete = false;
+            this.pathing = false;
             this.active = true;
             run_btn.onclick = function() {
                 sim.pausePlay();
             }
-            this.play();
             ui.customization_lock();
             ui.restart_btn_lock();
             debug.log("generating a path!");
-            this.type = 1;
-            this.run();
+            this.play();
+        } else if (!grid.has_finish || !grid.has_start) {
+            debug.notice("The grid is incomplete. It is missing " 
+                + ((!grid.has_finish) ? "the finish node" : "") 
+                + ((!grid.has_finish && !grid.has_start) ? " and " : ((grid.has_start) ? "." : "")) 
+                + ((!grid.has_start) ? "the start node." : "")                
+            );
         }
     }
 
@@ -358,7 +472,9 @@ class Simulator {
         this.maze_alg = algorithm();
         this.maze_alg.reset();
     }
-    reset() {
+    reset():void {
+        this.pause();
+        ui.disable(stop_btn);
         if(this.type == 0) {
             this.reset_maze();
             this.active = false;
@@ -378,7 +494,7 @@ class Simulator {
         }
         grid.activate_paint();
     }
-    reset_maze() {
+    reset_maze():void {
         debug.notice("maze reset");
         this.maze_alg.reset();
         grid.clear_walls();
@@ -388,8 +504,12 @@ class Simulator {
         // this.paused = false;
         this.start_completed = false;
     }
-    reset_path() {
-
+    reset_path():void {
+        debug.notice("path restart");
+        ui.disable(restart_btn);
+        this.path_alg.reset();
+        this.start_completed = false;
+        ui.design_unlock();
     }
 
     driver(route: any[] | undefined, position: number) {
@@ -409,8 +529,14 @@ class Simulator {
 
     sim_controls_locked = false;
 
+    // path generation
+    pathing:boolean = false;
+    path_complete:boolean = false;
+    p_index:number = 0;
+    path_route:any[] = [];
 
     // 0 = maze, 1 = path
+    maze_gen_final = false;
     type:number = 0;
     start_completed = false;
     d:number = 0;
@@ -426,7 +552,7 @@ var m = new WeightedRandomizedPrim(grid);
 sim.set_algorithm(m);
     
 function set_step_name(n:string) {
-    debug.log(n);
+    // debug.log(n);
 }
 
 // tester
@@ -495,7 +621,7 @@ function set_maze_alg(alg:number):void {
 }
 
 function set_path_alg(alg:number):void {
-    maze_input!.firstChild!.nodeValue = path_algorithms[alg].name;
+    path_input!.firstChild!.nodeValue = path_algorithms[alg].name;
     path_input?.setAttribute("hover_hint",path_algorithms[alg].name);
     sim.set_path_alg(path_algorithms[alg].alg);
     debug.log("set pathing algorithm to " + path_algorithms[alg].name);

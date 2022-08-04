@@ -3,7 +3,7 @@ window.onerror = function (msg, url, line) {
     debug.alert("Warning: an error occured on line " + line + " in " + url + ". Error message: " + msg + "\nIf you can, please make a bug report at <a href='https://github.com/genericallynamed' style='text-decoration:underline;display:contents;'>github.com/genericallynamed</a>");
 };
 // meta
-var app_ver = "0.5.1 infdev";
+var app_ver = "0.6.1 alpha";
 document.querySelector("#about_app.title").innerHTML = "v" + app_ver + " • created by Alex Shandilis";
 // globals & defaults
 var winHeight = window.innerHeight;
@@ -177,7 +177,11 @@ var Debugger = /** @class */ (function () {
         this.d_elem = debugger_elem;
     }
     Debugger.prototype.log = function (debug) {
+        var _a;
         var handler = new Error();
+        if (debug.indexOf("undefined") !== -1) {
+            console.log("BRUH!");
+        }
         var prev_l = document.querySelector("#debug_output").lastChild;
         if (prev_l.childNodes[1].textContent === " " + debug + " ") {
             var num = parseInt(prev_l.querySelector(".log-count").innerHTML);
@@ -190,6 +194,9 @@ var Debugger = /** @class */ (function () {
             var d = document.createElement('div');
             d.classList.add("debug");
             d.innerHTML = "<img src='icons/chevron.svg' class='chevron-symbol'> " + debug + " <div style='visibility:hidden;' class='log-count'>1</div";
+            if (((_a = d.innerText) === null || _a === void 0 ? void 0 : _a.indexOf("undefined")) !== -1) {
+                console.log("BRUGH!!!!");
+            }
             this.d_elem.appendChild(d);
             this.hide_elems_offscreen();
         }
@@ -205,7 +212,7 @@ var Debugger = /** @class */ (function () {
         a.innerHTML = "<img src='icons/warn.svg' class='warn-symbol'> " + ("<line_num>" + line_num + ":</line_num> ") + alert;
         this.d_elem.appendChild(a);
         this.hide_elems_offscreen();
-        if (document.querySelectorAll(".warn-symbol").length > 5) {
+        if (document.querySelectorAll(".warn-symbol").length > 3) {
             this.notice("Several errors have occurred. Please try refreshing the page to resolve the issue. You may also consider filling out a bug report at <a href='https://github.com/genericallynamed' style='text-decoration:underline;display:contents;'>github.com/genericallynamed</a>.");
         }
     };
@@ -240,8 +247,8 @@ var Debugger = /** @class */ (function () {
     return Debugger;
 }());
 var debug = new Debugger(document.getElementById("debug_output"));
-debug.alert("This app is in-development. Errors and in-stability are likely to occur. If you encounter freezing, try pressing ctrl+w repeatedly or crying.");
-debug.notice("Optimization issues are likely to occur due to optimization issues.");
+debug.alert("This app is in-development. Errors and in-stability are likely to occur. If you encounter freezing or other major issues, please let me know via my GitHub, <a href='https://github.com/genericallynamed'>github.com/genericallynamed</a>");
+debug.notice("Due to optimization issues with HTML tables, it is recommended to not use a table with dimensions greater than 30 by 30.");
 debug.info("Path Star v" + app_ver + " by Alex Shandilis");
 var HoverHint = /** @class */ (function () {
     function HoverHint(elem) {
@@ -332,10 +339,12 @@ var UserInterface = /** @class */ (function () {
     }
     UserInterface.prototype.pause = function () {
         run_btn.firstElementChild.setAttribute("src", "icons/play.svg");
+        this.enable(restart_btn);
         this.paused = true;
     };
     UserInterface.prototype.play = function () {
         run_btn.firstElementChild.setAttribute("src", "icons/pause.svg");
+        this.enable(restart_btn);
         this.paused = false;
     };
     UserInterface.prototype.toggle_pause = function () {
@@ -425,6 +434,7 @@ var UserInterface = /** @class */ (function () {
         this.paint_btn_lock();
         this.grid_lock();
         this.undo_redo_lock();
+        this.dim_lock();
     };
     UserInterface.prototype.design_unlock = function () {
         this.enable(clear_btn);
@@ -435,6 +445,7 @@ var UserInterface = /** @class */ (function () {
         this.paint_btn_unlock();
         this.grid_unlock();
         this.undo_redo_unlock();
+        this.dim_unlock();
     };
     UserInterface.prototype.skip_btn_lock = function () {
         this.disable(skip_back_btn);
@@ -457,14 +468,18 @@ var UserInterface = /** @class */ (function () {
         this.enable(paint_btn);
     };
     UserInterface.prototype.set_play_btn_type = function (type) {
+        this.enable(run_btn);
         if (type === 0) {
             run_btn.firstElementChild.setAttribute("src", "icons/play.svg");
+            run_btn.onclick = function () { sim.play(); };
         }
         else if (type === 1) {
-            run_btn.firstElementChild.setAttribute("src", "icons/path_play.svg");
+            run_btn.firstElementChild.setAttribute("src", "icons/runner.svg");
+            run_btn.onclick = function () { sim.gen_path(); };
         }
         else if (type === 2) {
-            run_btn.firstElementChild.setAttribute("src", "icons/maze_play.svg");
+            run_btn.firstElementChild.setAttribute("src", "icons/randomize.svg");
+            run_btn.onclick = function () { sim.gen_maze(); };
         }
     };
     UserInterface.prototype.disable = function (button) {

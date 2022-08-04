@@ -13,9 +13,13 @@ var Palette = /** @class */ (function () {
         this.search_items = []; //list of current items considered // updates depending on what you are searching i.e. all commands or choosing items for a selector
         this.displayed_items = [];
         this.override = false;
+        // opened():boolean {
+        //     return this.palette.matches(".activated");
+        // }
         // secondary functions
         this.selectorActivated = false;
         this.locked = false;
+        this.opened = false;
         this.commands = commands;
         for (var i = 0; i < defaults.length; i++) {
             this.defaults.push(commands[defaults[i]]);
@@ -29,7 +33,7 @@ var Palette = /** @class */ (function () {
         });
         this.palette_in.addEventListener("focus", function (e) {
             var p = e.target;
-            p.p.unhide();
+            p.p.open();
         });
         // this.palette_in.addEventListener("blur", function(e:Event) {
         //     let p:any = e.target;
@@ -64,17 +68,18 @@ var Palette = /** @class */ (function () {
         return undefined;
     };
     Palette.prototype.run_command = function (p_i) {
-        if (this.activated()) {
-            this.hide();
-        }
         this.palette_in.value = "";
-        this.unhide();
-        console.log("run command, selectorActived = " + this.selectorActivated);
-        if (this.selectorActivated) {
+        if (p_i.getType() === 1) {
+            console.log("run command, selectorActived = " + this.selectorActivated);
+            this.selectorActivated = true;
+            this.start_selector(p_i);
+        }
+        else if (this.selectorActivated) {
             console.log("attempting selection");
             console.log(this.search_items.indexOf(p_i));
             p_i.command.action(this.search_items.indexOf(p_i));
-            this.hide();
+            console.log("palette close inside RUN_COMMAND");
+            this.close();
         }
         else {
             console.log("default behavior");
@@ -159,7 +164,7 @@ var Palette = /** @class */ (function () {
     // hint/auto-fill suggestion management
     Palette.prototype.set_hint = function (hint) {
         this.hint = hint;
-        if (!this.palette_in.matches(":focus") && this.get_input().length == 0) {
+        if (!this.opened && this.get_input().length == 0) {
             this.palette_hint.innerHTML = "<key_hint> CTRL</key_hint> + <key_hint> ALT</key_hint> + <key_hint> P</key_hint> to open the command palette";
         }
         else if (this.get_input() === this.hint) {
@@ -196,7 +201,7 @@ var Palette = /** @class */ (function () {
         }
     };
     Palette.prototype.fill_suggestion = function () {
-        if (this.activated()) {
+        if (this.opened) {
             this.palette_in.value = this.hint;
             this.query_update();
         }
@@ -204,7 +209,8 @@ var Palette = /** @class */ (function () {
     Palette.prototype.clear = function () {
         this.palette_in.value = "";
     };
-    Palette.prototype.hide = function () {
+    Palette.prototype.close = function () {
+        this.opened = false;
         console.log("hiding the palette");
         this.palette_in.blur();
         if (this.selectorActivated) {
@@ -215,8 +221,9 @@ var Palette = /** @class */ (function () {
         this.set_hint("");
         this.palette_items.classList.add("hidden");
     };
-    Palette.prototype.unhide = function () {
-        this.override = true;
+    Palette.prototype.open = function () {
+        this.opened = true;
+        this.override = false;
         console.log("unhiding palette");
         this.palette.classList.remove("hidden");
         if (this.get_input().length === 0) {
@@ -231,11 +238,12 @@ var Palette = /** @class */ (function () {
     Palette.prototype.get_input = function () {
         return this.palette_in.value;
     };
-    Palette.prototype.activated = function () {
-        return this.palette.matches(".activated");
-    };
     Palette.prototype.start_selector = function (p) {
+        if (!this.opened) {
+            this.open();
+        }
         this.selectorActivated = true;
+        this.override = true;
         console.log("selector started, selectorActivated==" + this.selectorActivated);
         this.search_items = [];
         var items = p.getSelection();
@@ -243,6 +251,8 @@ var Palette = /** @class */ (function () {
             this.search_items.push(items[i]);
         }
         this.query_update();
+        this.palette_in.focus();
+        // this.override = false;
     };
     Palette.prototype.end_selector = function () {
         console.log("end selector");
@@ -307,25 +317,27 @@ var PaletteItem = /** @class */ (function () {
             console.log(this.command !== undefined && this.command.type === 0);
             if (this.command !== undefined && this.command.type === 0) {
                 this.command.action();
-                p.hide();
+                console.log("palette close inside ACTION");
+                p.close();
             }
         }
         else if (this.getType() === 1) {
             p.start_selector(this);
         }
         else if (this.getType() === 3) {
+            p.run_command(this);
         }
     };
     return PaletteItem;
 }());
 // array datastructure to store commands
 var commands = [
-    {
-        names: ["preferences"],
-        action: function () { toggle_prefs(); },
-        caption: "change app settings like theme and more",
-        type: 0
-    },
+    // {
+    //     names: ["preferences"],
+    //     action: () => { toggle_prefs() },
+    //     caption: "change app settings like theme and more",
+    //     type: 0
+    // },
     {
         names: ["about"],
         action: function () { toggle_splash(); },
@@ -362,7 +374,7 @@ var commands = [
     },
     {
         names: ["maze:generate"],
-        action: function () { grid.remove_start_finish(); sim.gen_maze(); },
+        action: function () { sim.gen_maze(); },
         caption: "generate a new maze",
         type: 0
     },
@@ -413,14 +425,15 @@ window.addEventListener("keyup", function (e) {
 window.addEventListener("keydown", function (e) {
     keys_p[e.key] = (keys_p[e.key]) ? false : true;
     if (e.key === "Tab") {
-        if (palette.activated()) {
+        if (palette.opened) {
             e.preventDefault();
         }
         palette.fill_suggestion();
     }
-    else if (palette.activated()) {
+    else if (palette.opened) {
         if (e.key === "Escape") {
-            palette.hide();
+            console.log("palette close inside ESCAPE_KEYDOWN");
+            palette.close();
         }
         else if (e.key === "Enter") {
             console.log(palette.displayed_items[palette.get_highlighted_index()].getName());
@@ -428,8 +441,9 @@ window.addEventListener("keydown", function (e) {
             // palette.run_command();
         }
         else if (e.ctrlKey && e.altKey && e.key === "p") {
+            console.log("palette close inside SHRTCT_KEYDOWN");
             e.preventDefault();
-            palette.hide();
+            palette.close();
         }
         else if (e.key === "ArrowDown") {
             e.preventDefault();
@@ -440,7 +454,7 @@ window.addEventListener("keydown", function (e) {
             palette.cycle_up();
         }
     }
-    else if (!palette.activated()) {
+    else if (!palette.opened) {
         if (e.ctrlKey && e.altKey && e.key === "p") {
             palette.palette_in.focus();
         }
@@ -454,16 +468,16 @@ palette.palette_items.onscroll = function (e) {
 };
 window.addEventListener("click", function (e) {
     var t = e.target;
-    console.log("click A");
-    if (!document.querySelector("#palette").contains(t)) {
-        if (palette.activated()) {
-            if (palette.override) {
-                palette.override = false;
-            }
-            else {
-                palette.hide();
-            }
+    var valid_click = document.querySelector("#palette").contains(t) || t.matches(".palette_item");
+    if (!valid_click && !palette.override) {
+        console.log("clicked outside the palette!");
+        if (palette.opened) {
+            console.log("palette close inside CLICK EVENT");
+            palette.close();
         }
+    }
+    if (palette.override) {
+        palette.override = false;
     }
     // else if(t.matches(".palette_item") || t.parentElement.matches(".palette_item")) {
     //     debug.log("clicked!");

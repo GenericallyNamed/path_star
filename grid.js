@@ -37,7 +37,9 @@ var Grid = /** @class */ (function () {
             var grid = e.currentTarget;
             grid = grid.grid;
             var el = e.target;
-            grid.move_floating_element(el.x, el.y);
+            if (el.x !== undefined && el.y !== undefined) {
+                grid.move_floating_element(el.x, el.y);
+            }
             if (grid.moving_elem) {
             }
             else {
@@ -159,6 +161,7 @@ var Grid = /** @class */ (function () {
         this.grid_object.rows[y].cells[x].classList.add("start");
         this.move_start_btn.removeAttribute("hover_tag");
         this.ui.remove_notice(this.move_start_btn);
+        this.has_start = true;
     };
     Grid.prototype.set_finish = function (x, y) {
         this.finish_x = x;
@@ -168,6 +171,7 @@ var Grid = /** @class */ (function () {
         this.grid_object.rows[y].cells[x].classList.add("finish");
         this.move_finish_btn.removeAttribute("hover_tag");
         this.ui.remove_notice(this.move_finish_btn);
+        this.has_finish = true;
     };
     Grid.prototype.add_wall = function (x, y) {
         this.at(x, y).classList.add("wall");
@@ -181,7 +185,7 @@ var Grid = /** @class */ (function () {
         this.at(x, y).classList.remove("wall");
     };
     Grid.prototype.fill_walls = function () {
-        debug.log("filling walls: @" + console.trace());
+        debug.log("filling walls");
         for (var i = 0; i < this.height; i++) {
             for (var j = 0; j < this.width; j++) {
                 this.add_wall(j, i);
@@ -398,6 +402,7 @@ var Grid = /** @class */ (function () {
         if (this.get_start() !== undefined) {
             this.get_start().classList.remove("start");
         }
+        this.has_start = false;
         this.start_x = -1;
         this.start_y = -1;
         if (!this.moving_elem) {
@@ -409,6 +414,7 @@ var Grid = /** @class */ (function () {
         if (this.get_finish() !== undefined) {
             this.get_finish().classList.remove("finish");
         }
+        this.has_finish = false;
         this.finish_x = -1;
         this.finish_y = -1;
         if (!this.moving_elem) {

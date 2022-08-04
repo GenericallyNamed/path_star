@@ -6,7 +6,7 @@ window.onerror = function(msg,url,line) {
 }
 
 // meta
-var app_ver:string = "0.5.1 infdev";
+var app_ver:string = "0.6.1 alpha";
 document.querySelector("#about_app.title")!.innerHTML = "v" + app_ver + " • created by Alex Shandilis"
 // globals & defaults
 var winHeight = window.innerHeight;
@@ -187,6 +187,9 @@ class Debugger {
 
     log(debug:string) {
         var handler = new Error();
+        if(debug.indexOf("undefined") !== -1) {
+            console.log("BRUH!");
+        }
         var prev_l:any = document.querySelector("#debug_output")!.lastChild;
         if(prev_l!.childNodes[1].textContent === " " + debug + " ") {
             let num:number = parseInt(prev_l!.querySelector(".log-count").innerHTML);
@@ -198,6 +201,9 @@ class Debugger {
             let d:HTMLElement = document.createElement('div');
             d.classList.add("debug");
             d.innerHTML = "<img src='icons/chevron.svg' class='chevron-symbol'> " + debug + " <div style='visibility:hidden;' class='log-count'>1</div";
+            if(d.innerText?.indexOf("undefined") !== -1) {
+                console.log("BRUGH!!!!");
+            }
             this.d_elem.appendChild(d);
             this.hide_elems_offscreen();
         }
@@ -214,7 +220,7 @@ class Debugger {
         a.innerHTML = "<img src='icons/warn.svg' class='warn-symbol'> " + ("<line_num>" + line_num + ":</line_num> ") + alert;
         this.d_elem.appendChild(a);
         this.hide_elems_offscreen();
-        if(document.querySelectorAll(".warn-symbol").length > 5) {
+        if(document.querySelectorAll(".warn-symbol").length > 3) {
             this.notice("Several errors have occurred. Please try refreshing the page to resolve the issue. You may also consider filling out a bug report at <a href='https://github.com/genericallynamed' style='text-decoration:underline;display:contents;'>github.com/genericallynamed</a>.");
         }
     }
@@ -255,8 +261,8 @@ class Debugger {
 }
 var debug = new Debugger(document.getElementById("debug_output"));
 
-debug.alert("This app is in-development. Errors and in-stability are likely to occur. If you encounter freezing, try pressing ctrl+w repeatedly or crying.");
-debug.notice("Optimization issues are likely to occur due to optimization issues.");
+debug.alert("This app is in-development. Errors and in-stability are likely to occur. If you encounter freezing or other major issues, please let me know via my GitHub, <a href='https://github.com/genericallynamed'>github.com/genericallynamed</a>");
+debug.notice("Due to optimization issues with HTML tables, it is recommended to not use a table with dimensions greater than 30 by 30.");
 debug.info("Path Star v" + app_ver + " by Alex Shandilis"); 
 
 class HoverHint {
@@ -352,10 +358,12 @@ class UserInterface {
     private paused:boolean = false;
     pause() {
         run_btn.firstElementChild.setAttribute("src","icons/play.svg");
+        this.enable(restart_btn);
         this.paused = true;
     }
     play() {
         run_btn.firstElementChild.setAttribute("src","icons/pause.svg");
+        this.enable(restart_btn);
         this.paused = false;
     }
     toggle_pause() {
@@ -455,6 +463,7 @@ class UserInterface {
         this.paint_btn_lock();
         this.grid_lock();
         this.undo_redo_lock();
+        this.dim_lock();
     }
     design_unlock():void {
         this.enable(clear_btn);
@@ -465,6 +474,7 @@ class UserInterface {
         this.paint_btn_unlock();
         this.grid_unlock();
         this.undo_redo_unlock();
+        this.dim_unlock();
     }
     skip_btn_lock():void {
         this.disable(skip_back_btn);
@@ -488,12 +498,16 @@ class UserInterface {
     }
 
     set_play_btn_type(type:number) {
+        this.enable(run_btn);
         if(type === 0) {
             run_btn.firstElementChild.setAttribute("src","icons/play.svg");
+            run_btn.onclick = () => { sim.play(); }
         } else if(type === 1) {
-            run_btn.firstElementChild.setAttribute("src","icons/path_play.svg");
+            run_btn.firstElementChild.setAttribute("src","icons/runner.svg");
+            run_btn.onclick = () => { sim.gen_path(); }
         } else if(type === 2) {
-            run_btn.firstElementChild.setAttribute("src","icons/maze_play.svg");
+            run_btn.firstElementChild.setAttribute("src","icons/randomize.svg");
+            run_btn.onclick = () => { sim.gen_maze(); }
         }
     }
 

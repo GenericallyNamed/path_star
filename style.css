@@ -22,6 +22,11 @@ a {
     text-decoration:none;
     color:aqua;
 }
+.debug > a {
+    display:contents;
+}
+
+
 body {
     overflow:hidden;
 }
@@ -340,12 +345,13 @@ table tr:first-child td:first-child {
     background-color:gold!important;
     border-color:goldenrod!important;
 }
+.exploring {
+    border-color:#12DE1F!important;
+    background:rgb(179, 255, 92)!important;
+}
 .traveled {
     background-color: turquoise!important;
     border-color:blue!important;
-}
-.exploring {
-    border-color:#12DE1F!important;
 }
 /* widget main */
 

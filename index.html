@@ -26,8 +26,14 @@
                 <div id="splash_title">
                     Path Star
                 </div>
-                <button id="splash_button">
-                    enter
+                <div id="splash_msg">
+                    <p class="msg">
+                        Path Star is a simulator that helps visualize how pathfinding and maze-generation algorithms work! It mostly acts as a little toy, but also a pretty fascinating way to see how these different algorithms approach problem solving. Path Star is still under development, so some features might still be missing or incomplete. Have fun!
+                    </p>
+                    <!-- <button class="read_more"> read more</button> -->
+                </div>
+                <button id="splash_button" onclick="toggle_splash()">
+                    click here or press  <key_hint spacebar>  spacebar  </key_hint>  to begin
                 </button>
             </div>
             <div id="prefs" class="pop-up shrink">
@@ -88,7 +94,7 @@
             </div>
             <div id="footer">
                 <div id="widget_container" class="">
-                    <div class="widget" id="undo_redo">
+                    <div class="widget" id="undo_redo" style="display:none;">
                         <div class="controls">
                             <button id="undo_btn" class="btn" tabindex="1" hover_hint="undo">
                                 <img src="icons/undo.svg" alt="paintbrush">
@@ -111,7 +117,7 @@
                                 <img src="icons/clear.svg" alt="clear">
                             </button>
                             <button id="add_wall_btn" class="btn" tabindex="2.1" hover_hint="paint new walls in the grid" onclick="grid.toggle_paint();">
-                                <img src="icons/paint.svg" alt="paintbrush">
+                                <img src="icons/paintbrush.svg" alt="paintbrush">
                             </button>
                             <button id="add_start_btn" class="btn" tabindex="2.2" hover_hint="set a new location for the start" onclick="grid.start_move(0);">
                                 <img src="icons/home.svg" alt="home">
@@ -151,19 +157,19 @@
                     </div>
                     <div class="widget" id="main_controls">
                         <div class="controls">
-                            <button id="timing_btn" class="btn" tabindex="7.1" hover_hint="adjust simulation timing">
-                                <img src="icons/timer.svg" alt="timing">
-                            </button>
                             <button id="reset_btn" class="btn" tabindex="7.2" hover_hint="reset" onclick="sim.reset();">
                                 <img src="icons/restart.svg" alt="restart">
                             </button>
-                            <button id="stop_btn" class="btn" tabindex="7.3" hover_hint="stop" onclick="sim.reset();">
+                            <button style="display:none;" id="timing_btn" class="btn" tabindex="7.1" hover_hint="adjust simulation timing">
+                                <img src="icons/timer.svg" alt="timing">
+                            </button>
+                            <button id="stop_btn" class="btn" tabindex="7.3" hover_hint="stop" onclick="sim.stop();">
                                 <img src="icons/stop.svg" alt="restart">
                             </button>
-                            <button id="skip_back_btn" class="btn" tabindex="9" hover_hint="skip back">
+                            <button style="display:none;" id="skip_back_btn" class="btn" tabindex="9" hover_hint="skip back">
                                 <img src="icons/skip_back.svg" alt="skip back">
                             </button>
-                            <button id="skip_next_btn" class="btn" tabindex="10" hover_hint="skip forwards">
+                            <button id="skip_next_btn" class="btn" tabindex="10" hover_hint="skip forwards" onclick="sim.step();">
                                 <img src="icons/skip_next.svg" alt="skip forwards">
                             </button>
                             <button id="start_btn" class="btn" tabindex="11" hover_hint="select path or maze generation first" onclick="sim.pausePlay()">

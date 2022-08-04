@@ -18,7 +18,9 @@ class Grid {
             var grid:any = e.currentTarget!;
             grid = grid.grid;
             let el:any = e!.target!;
-            grid.move_floating_element(el.x,el.y);
+            if(el.x !== undefined && el.y !== undefined) {
+                grid.move_floating_element(el.x,el.y);
+            }
             if(grid.moving_elem) {
             } else {
                 if(e.buttons == 1) {
@@ -140,7 +142,7 @@ class Grid {
         }
     }
     
-    set_start(x:number, y:number) { 
+    set_start(x:number, y:number) {
         this.start_x = x;
         this.start_y = y;
         let old = this.grid_object.querySelector(".start");
@@ -148,6 +150,7 @@ class Grid {
         this.grid_object.rows[y].cells[x].classList.add("start");
         this.move_start_btn.removeAttribute("hover_tag");
         this.ui.remove_notice(this.move_start_btn);
+        this.has_start = true;
     }
     set_finish(x:number, y:number) {
         this.finish_x = x;
@@ -157,6 +160,7 @@ class Grid {
         this.grid_object.rows[y].cells[x].classList.add("finish");
         this.move_finish_btn.removeAttribute("hover_tag");
         this.ui.remove_notice(this.move_finish_btn);
+        this.has_finish = true;
     }
 
     add_wall(x:number, y:number):void {
@@ -172,7 +176,7 @@ class Grid {
         this.at(x, y).classList.remove("wall");
     }
     fill_walls():void {
-        debug.log("filling walls: @" + console.trace());
+        debug.log("filling walls");
         for(var i = 0; i < this.height; i++) {
             for(var j = 0; j < this.width; j++) {
                 this.add_wall(j, i);
@@ -417,6 +421,7 @@ class Grid {
         if(this.get_start() !== undefined) {
             this.get_start().classList.remove("start");
         }
+        this.has_start = false;
         this.start_x = -1;
         this.start_y = -1;
         if(!this.moving_elem) {
@@ -428,6 +433,7 @@ class Grid {
         if(this.get_finish() !== undefined) {
             this.get_finish().classList.remove("finish");
         }
+        this.has_finish = false;
         this.finish_x = -1;
         this.finish_y = -1;
         if(!this.moving_elem) {

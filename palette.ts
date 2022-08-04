@@ -12,7 +12,7 @@ class Palette {
             p.p.query_update()});
         this.palette_in.addEventListener("focus", function(e:Event) {
             let p:any = e.target;
-            p.p.unhide()});
+            p.p.open()});
         // this.palette_in.addEventListener("blur", function(e:Event) {
         //     let p:any = e.target;
         //     if(e.currentTarget != p.p.palette) {
@@ -67,17 +67,17 @@ class Palette {
     }
 
     run_command(p_i:PaletteItem) {
-        if(this.activated()) {
-            this.hide();
-        }
         this.palette_in.value = "";
-        this.unhide();
-        console.log("run command, selectorActived = " + this.selectorActivated);
-        if(this.selectorActivated) {
+        if(p_i.getType() === 1) {
+            console.log("run command, selectorActived = " + this.selectorActivated);
+            this.selectorActivated = true;
+            this.start_selector(p_i);
+        } else if(this.selectorActivated) {
             console.log("attempting selection");
             console.log(this.search_items.indexOf(p_i));
             p_i.command!.action(this.search_items.indexOf(p_i));
-            this.hide();
+            console.log("palette close inside RUN_COMMAND");
+            this.close();
         } else {
             console.log("default behavior")
             p_i.action(this);
@@ -165,7 +165,7 @@ class Palette {
     // hint/auto-fill suggestion management
     set_hint(hint:string) {
         this.hint = hint;
-        if(!this.palette_in.matches(":focus") && this.get_input().length == 0) {
+        if(!this.opened && this.get_input().length == 0) {
             this.palette_hint.innerHTML = "<key_hint> CTRL</key_hint> + <key_hint> ALT</key_hint> + <key_hint> P</key_hint> to open the command palette";
         } else if(this.get_input() === this.hint) {
             this.palette_hint.innerHTML = hint;
@@ -196,7 +196,7 @@ class Palette {
         }
     }
     fill_suggestion() {
-        if(this.activated()) {
+        if(this.opened) {
             this.palette_in.value = this.hint;
             this.query_update();
         }
@@ -204,7 +204,8 @@ class Palette {
     clear():void {
         this.palette_in.value = "";
     }
-    hide():void {
+    close():void {
+        this.opened = false;
         console.log("hiding the palette");
         this.palette_in.blur();
         if(this.selectorActivated) {
@@ -215,8 +216,9 @@ class Palette {
         this.set_hint("");
         this.palette_items.classList.add("hidden");
     }
-    unhide():void {
-        this.override = true;
+    open():void {
+        this.opened = true;
+        this.override = false;
         console.log("unhiding palette");
         this.palette.classList.remove("hidden");
         if(this.get_input().length === 0) {
@@ -231,14 +233,18 @@ class Palette {
     get_input():string {
         return this.palette_in.value;
     }
-    activated():boolean {
-        return this.palette.matches(".activated");
-    }
+    // opened():boolean {
+    //     return this.palette.matches(".activated");
+    // }
 
     // secondary functions
     selectorActivated:boolean = false;
     start_selector(p:PaletteItem) {
+        if(!this.opened) {
+            this.open();
+        }
         this.selectorActivated = true;
+        this.override = true;
         console.log("selector started, selectorActivated==" + this.selectorActivated);
         this.search_items = [];
         let items:PaletteItem[] = p.getSelection();
@@ -246,6 +252,8 @@ class Palette {
             this.search_items.push(items[i]);
         }
         this.query_update();
+        this.palette_in.focus();
+        // this.override = false;
     }
     end_selector():void {
         console.log("end selector");
@@ -262,6 +270,7 @@ class Palette {
 
     }
     private locked:boolean = false;
+    public opened:boolean = false;
 }
 
 
@@ -311,17 +320,21 @@ class PaletteItem {
             console.log(this.command !== undefined && this.command.type === 0);
             if(this.command !== undefined && this.command.type === 0) {
                 this.command.action();
-                p.hide();
+                console.log("palette close inside ACTION");
+                p.close();
             }
         } else if(this.getType() === 1) {
             p.start_selector(this);
         } else if(this.getType() === 3) {
+            p.run_command(this);
         }
     }
-
+    
+    // type
+    private type: number;
+    
     private name: string;
     private caption: string | undefined;
-    private type: number;
     public command: Command | undefined;
     public highlighted:boolean = false;    
 }
@@ -344,12 +357,12 @@ type Command = {
 
 // array datastructure to store commands
 var commands: Command[] = [
-    {
-        names: ["preferences"],
-        action: () => { toggle_prefs() },
-        caption: "change app settings like theme and more",
-        type: 0
-    },
+    // {
+    //     names: ["preferences"],
+    //     action: () => { toggle_prefs() },
+    //     caption: "change app settings like theme and more",
+    //     type: 0
+    // },
     {
         names: ["about"],
         action: () => { toggle_splash() },
@@ -385,7 +398,7 @@ var commands: Command[] = [
     },
     {
         names: ["maze:generate"],
-        action: () => { grid.remove_start_finish(); sim.gen_maze(); },
+        action: () => { sim.gen_maze(); },
         caption: "generate a new maze",
         type: 0
     },
@@ -437,20 +450,22 @@ window.addEventListener("keyup",function(e) {
 window.addEventListener("keydown",function(e) {
     keys_p[e.key] = (keys_p[e.key]) ? false : true;
     if(e.key === "Tab") {
-        if(palette.activated()) {
+        if(palette.opened) {
             e.preventDefault();
         }
         palette.fill_suggestion();
-    } else if(palette.activated()) {
+    } else if(palette.opened) {
         if(e.key === "Escape") {
-            palette.hide();
+            console.log("palette close inside ESCAPE_KEYDOWN");
+            palette.close();
         } else if(e.key === "Enter") {
             console.log(palette.displayed_items[palette.get_highlighted_index()].getName());
             palette.run_command(palette.displayed_items[palette.get_highlighted_index()]);
             // palette.run_command();
         } else if(e.ctrlKey && e.altKey && e.key === "p") {
+            console.log("palette close inside SHRTCT_KEYDOWN");
             e.preventDefault();
-            palette.hide();
+            palette.close();
         } else if(e.key === "ArrowDown") {
             e.preventDefault();
             palette.cycle_down();
@@ -458,7 +473,7 @@ window.addEventListener("keydown",function(e) {
             e.preventDefault();
             palette.cycle_up();
         }
-    } else if(!palette.activated()) {
+    } else if(!palette.opened) {
         if(e.ctrlKey && e.altKey && e.key === "p") {
             palette.palette_in.focus();
         }
@@ -474,16 +489,17 @@ palette.palette_items.onscroll = function(e:Event) {
 
 window.addEventListener("click", function(e:Event) {
     var t:any = e.target;
-    console.log("click A");
-    if(!document!.querySelector("#palette")!.contains(t)) {
-        if(palette.activated()) {
-            if(palette.override) {
-                palette.override = false;
-            } else {
-                palette.hide();
-            }
+    var valid_click:boolean = document!.querySelector("#palette")!.contains(t) || t.matches(".palette_item");
+    if(!valid_click && !palette.override) {
+        console.log("clicked outside the palette!");
+        if(palette.opened) {
+            console.log("palette close inside CLICK EVENT");
+            palette.close();
         }
-    } 
+    }
+    if(palette.override) {
+        palette.override = false;
+    }
     // else if(t.matches(".palette_item") || t.parentElement.matches(".palette_item")) {
     //     debug.log("clicked!");
     //     t.p_i.action(palette);
