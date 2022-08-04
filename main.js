@@ -3,7 +3,7 @@ window.onerror = function (msg, url, line) {
     debug.alert("Warning: an error occured on line " + line + " in " + url + ". Error message: " + msg + "\nIf you can, please make a bug report at <a href='https://github.com/genericallynamed' style='text-decoration:underline;display:contents;'>github.com/genericallynamed</a>");
 };
 // meta
-var app_ver = "0.6.1 alpha";
+var app_ver = "0.6.2 alpha";
 document.querySelector("#about_app.title").innerHTML = "v" + app_ver + " • created by Alex Shandilis";
 // globals & defaults
 var winHeight = window.innerHeight;

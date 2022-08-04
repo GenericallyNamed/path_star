@@ -6,7 +6,7 @@ window.onerror = function(msg,url,line) {
 }
 
 // meta
-var app_ver:string = "0.6.1 alpha";
+var app_ver:string = "0.6.2 alpha";
 document.querySelector("#about_app.title")!.innerHTML = "v" + app_ver + " • created by Alex Shandilis"
 // globals & defaults
 var winHeight = window.innerHeight;
@@ -142,7 +142,7 @@ w_in.addEventListener("change", function() {
         update_window();
     }
 });
-function toggle_splash() {
+function toggle_splash():void {
     if(overlay.active === false) {
         overlay.active = true;
         overlay.classList.remove("invisible");
@@ -157,7 +157,7 @@ function toggle_splash() {
         }
     }
 }
-function toggle_prefs() {
+function toggle_prefs():void {
     if(overlay.active === false) {
         console.log("testy test");
         overlay.active = true;
@@ -172,7 +172,7 @@ function toggle_prefs() {
 
 grid.update_coords();
 
-function blank_all_cells(grid:any) {
+function blank_all_cells(grid:any):void {
     for(var i = 0; i < grid.height; i++) {
         for(var j = 0; j < grid.width; j++) {
             console.log('test');

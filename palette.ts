@@ -371,7 +371,7 @@ var commands: Command[] = [
     },
     {
         names: ["path:run"],
-        action: () => { start() },
+        action: () => { sim.gen_path() },
         caption: "simulate the pathing algorithm",
         type: 0
     },
@@ -449,7 +449,12 @@ window.addEventListener("keyup",function(e) {
 });
 window.addEventListener("keydown",function(e) {
     keys_p[e.key] = (keys_p[e.key]) ? false : true;
-    if(e.key === "Tab") {
+    if(e.key === " ") {
+        if(overlay.active) {
+            e.preventDefault();
+            toggle_splash();
+        }
+    } else if(e.key === "Tab") {
         if(palette.opened) {
             e.preventDefault();
         }

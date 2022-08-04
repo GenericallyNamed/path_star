@@ -1,7 +1,5 @@
 // export {};
 
-import { addSyntheticLeadingComment, updateIndexSignature } from "typescript";
-
 // declare global {
 //     interface Window { iterations: any; algorithm: number;}
 // }

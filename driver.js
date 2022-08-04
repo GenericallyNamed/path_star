@@ -1,6 +1,4 @@
-"use strict";
 // export {};
-exports.__esModule = true;
 // declare global {
 //     interface Window { iterations: any; algorithm: number;}
 // }
