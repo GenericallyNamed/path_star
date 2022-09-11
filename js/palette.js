@@ -1,3 +1,4 @@
+"use strict";
 var Palette = /** @class */ (function () {
     function Palette(commands, defaults) {
         this.state = 0; //0 = default command search, 1 = selector
@@ -84,6 +85,14 @@ var Palette = /** @class */ (function () {
         else {
             console.log("default behavior");
             p_i.action(this);
+        }
+    };
+    Palette.prototype.enter = function () {
+        if (this.displayed_items.length === 0) {
+            debug.alert("Nothing was returned for your input. Is there a typo in your query?");
+        }
+        else {
+            this.run_command(palette.displayed_items[palette.get_highlighted_index()]);
         }
     };
     // what the item list does: show a filtered selection of items depending on the entry in the text field. the top suggestion becomes an autofill suggestion.
@@ -442,8 +451,7 @@ window.addEventListener("keydown", function (e) {
             palette.close();
         }
         else if (e.key === "Enter") {
-            console.log(palette.displayed_items[palette.get_highlighted_index()].getName());
-            palette.run_command(palette.displayed_items[palette.get_highlighted_index()]);
+            palette.enter();
             // palette.run_command();
         }
         else if (e.ctrlKey && e.altKey && e.key === "p") {
@@ -476,7 +484,6 @@ window.addEventListener("click", function (e) {
     var t = e.target;
     var valid_click = document.querySelector("#palette").contains(t) || t.matches(".palette_item");
     if (!valid_click && !palette.override) {
-        console.log("clicked outside the palette!");
         if (palette.opened) {
             console.log("palette close inside CLICK EVENT");
             palette.close();

@@ -1,5 +1,4 @@
-exports = {}
-
+// exports = {}
 
 window.onerror = function(msg,url,line) {
     debug.alert("Warning: an error occured on line " + line + " in " + url + ". Error message: " + msg + "\nIf you can, please make a bug report at <a href='https://github.com/genericallynamed' style='text-decoration:underline;display:contents;'>github.com/genericallynamed</a>");
@@ -264,6 +263,10 @@ var debug = new Debugger(document.getElementById("debug_output"));
 debug.alert("Path Star is in-development, so you may encounter errors or instability. If issues do occur, please let me know via my GitHub, <a href='https://github.com/genericallynamed'>github.com/genericallynamed</a>");
 debug.notice("Due to optimization issues with HTML tables, it is not recommended to create a grid with dimensions greater than 30 by 30.");
 debug.info("Path Star v" + app_ver + " by Alex Shandilis"); 
+
+if(navigator.userAgent.search("Firefox") > -1) {
+    debug.alert("It appears that you are visiting this website from Firefox. There are some known bugs and issues that aren't just weird CSS quirks and seem to occur only when using Firefox. Beware! It might be a better idea to just use Chrome or Edge. I probably won't fix them because I am a lazy college student with no free time.");
+}
 
 class HoverHint {
     constructor(elem:any) {
@@ -599,3 +602,132 @@ function add_warn(button:any) {
 function remove_warn(button:any) {
     ui.remove_warning(button);
 }
+
+
+// drag effect on pop-up window
+class MouseVector {
+    constructor() {
+        let v = document.createElement('div');
+        v.setAttribute("id","tv");
+        v.style.background = "red";
+        v.style.width = "5px";
+        v.style.height = "20px";
+        v.style.position = "absolute";
+        v.style.zIndex = "99999";
+        v.style.pointerEvents = "none";
+        // v.style.transition = "0.01s ease";
+        document.body.appendChild(v);
+        this.vector = document.querySelector<HTMLElement>("#tv")!;
+        (window as any).MouseVector = this;
+        window.addEventListener("mousemove",function(e) {
+            var mv = (window as any).MouseVector;
+            if(!mv.lock) {
+                mv.lock = true;
+                this.setTimeout(function() {
+                    (window as any).MouseVector.lock = false;
+                },5);
+                let X:number = e.clientX;
+                let Y:number = e.clientY;
+                mv.prevX = mv.newX;
+                mv.prevY = mv.newY;
+                mv.newX = X;
+                mv.newY = Y;
+                if(mv.prevX !== -1 && mv.prevX != mv.prevY) {
+                    mv.dX = mv.newX - mv.prevX;
+                    mv.dY = mv.newY - mv.prevY;
+                    mv.delta();
+                }
+            }
+
+        });
+    }
+
+    delta():void {
+        // this.angle = (Math.sin(this.dY / this.dX)) * (180.0 / Math.PI);
+        let trans:string = "";
+        let lim:boolean =   (this.dX == 1 && this.dY == 0) || 
+                            (this.dX == -1 && this.dY == 0) ||
+                            (this.dX == 0 && this.dY == 1) ||
+                            (this.dX == 0 && this.dY == -1);
+        if(!lim) {
+            if(this.dY > 0) {
+                if(this.dX > 0) {
+                    this.angle = (Math.sin(this.dY / this.dX)) * (180.0 / Math.PI);
+                    trans = "rotate(" + this.angle + "deg)" + 
+                            " translateY(50%)";
+                } else if(this.dX < 0) {
+                    this.angle = (Math.sin(this.dY / this.dX)) * (180.0 / Math.PI)
+                } else if(this.dX == 0) {
+                    this.angle = 0;
+                }
+            } else if(this.dY < 0) {
+                if(this.dX > 0) {
+    
+                } else if(this.dX < 0) {
+    
+                } else if(this.dX == 0) {
+    
+                }
+            } else if(this.dY == 0) {
+                if(this.dX > 0) {
+                    this.angle = 90;
+                    // trans = "rotate(" + this.angle + "deg)" +
+                    //         " translateY(-50%)";
+                } else if(this.dX < 0) {
+                    this.angle = 90;
+                    // trans = "rotate(" + this.angle + "deg)" +
+                    //         " translateY(50%)";
+                } else if(this.dX == 0) {
+                    
+                }
+            }
+            let length:number = Math.pow((Math.pow(this.dX, 2) + Math.pow(this.dY, 2)), 0.5);
+            this.vector.style.height = (20 + length * 10) + "px";
+            this.vector.style.left = this.newX + "px";
+            this.vector.style.top = this.newY + "px";
+            if(trans !== undefined && trans !== null) {
+                this.vector.style.transform = trans;
+            } else {
+                this.vector.style.transform =   "rotate(" + this.angle + "deg)" + 
+                                                " translateY(50%)";
+            }
+            console.log("updated: " + this.newX + ", " + this.newY + ", angle = " + this.angle + "deg" + ". dX = " + this.dX + ", dY = " + this.dY);
+        }
+        
+    }
+
+    // data
+    prevX:number = -1;
+    prevY:number = -1;
+    newX:number = -1;
+    newY:number = -1;
+    dX:number = -1;
+    dY:number = -1;
+    angle:number = -1;
+
+    lock:boolean = false;
+    // store and style
+    vector:HTMLElement;
+
+
+}
+
+// var v:MouseVector = new MouseVector();
+
+// var vector:HTMLElement = document.querySelector<HTMLElement>("tv")!;
+// var grab:boolean = false;
+// splash_g.addEventListener("mousedown",function() {
+//     console.log("clicked down on the splash!");
+//     grab = true;
+// });
+// splash_g.addEventListener("mouseup",function() {
+//     console.log("unclicked on splash");
+//     grab = false;
+// });
+// splash_g.addEventListener("mousemove",function() {
+//     if(grab) {
+//         console.log("moved splash!");
+        
+
+//     }
+// });

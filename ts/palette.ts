@@ -84,6 +84,15 @@ class Palette {
         }
     }
 
+    enter():void {
+        if(this.displayed_items.length === 0) {
+            debug.alert("Nothing was returned for your input. Is there a typo in your query?");
+        } else {
+            this.run_command(palette.displayed_items[palette.get_highlighted_index()]);
+        }
+
+    }
+
     // what the item list does: show a filtered selection of items depending on the entry in the text field. the top suggestion becomes an autofill suggestion.
     // so then what do we need?
     // a function that queries the masterlist and sends back the results from the list
@@ -464,8 +473,7 @@ window.addEventListener("keydown",function(e) {
             console.log("palette close inside ESCAPE_KEYDOWN");
             palette.close();
         } else if(e.key === "Enter") {
-            console.log(palette.displayed_items[palette.get_highlighted_index()].getName());
-            palette.run_command(palette.displayed_items[palette.get_highlighted_index()]);
+            palette.enter();
             // palette.run_command();
         } else if(e.ctrlKey && e.altKey && e.key === "p") {
             console.log("palette close inside SHRTCT_KEYDOWN");
@@ -496,7 +504,6 @@ window.addEventListener("click", function(e:Event) {
     var t:any = e.target;
     var valid_click:boolean = document!.querySelector("#palette")!.contains(t) || t.matches(".palette_item");
     if(!valid_click && !palette.override) {
-        console.log("clicked outside the palette!");
         if(palette.opened) {
             console.log("palette close inside CLICK EVENT");
             palette.close();

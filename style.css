@@ -5,6 +5,14 @@
 
     --palette-height:2.7rem;
     --palette-width:40rem;
+
+    /* colors */
+    --bg:black;
+    
+    --wall:black;
+    --path:white;
+    --primary:white;
+    --secondary:#575757;
 }
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
